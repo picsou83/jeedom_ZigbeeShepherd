@@ -19,7 +19,7 @@ if (!isConnect('admin')) {
 }
 
 if (init('ip') == '') {
-    throw new Exception('{{L\'ip ESPeasy ne peut etre vide : }}' . init('op_id'));
+    throw new Exception('{{L\'ip zigbee ne peut etre vide : }}' . init('op_id'));
 }
 $ip = init('ip');
 ?>
