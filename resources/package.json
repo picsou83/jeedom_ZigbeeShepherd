@@ -1,7 +1,7 @@
 {
-  "name": "JeedomEspeasy",
+  "name": "Jeedomzigbee",
   "version": "0.0.1",
-  "description": "Node to make Espeasy interact with Jeedom",
+  "description": "Node to make zigbee interact with Jeedom",
   "license": "GPL-3.0",
   "repository": "npm/npm",
   "dependencies": {
