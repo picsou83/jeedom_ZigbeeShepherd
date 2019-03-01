@@ -124,6 +124,55 @@ class zigbee extends eqLogic {
       throw new Exception(__('L\'adresse ne peut etre vide',__FILE__));
     }
   }
+  
+  public function postUpdate() {
+        log::add('zigbee', 'info', '** postUpdate CMD **');
+    	$cmdlogic = zigbeeCmd::byEqLogicIdAndLogicalId($this->getId(), 'genOnOff');
+    if ($this->getConfiguration('modelId') === 'TRADFRI control outlet' && is_object($cmdlogic)){
+          $cmdlogicverif = zigbeeCmd::byEqLogicIdAndLogicalId($this->getId(), 'on');
+          if (!is_object($cmdlogicverif)) {
+          $jeezigbeeCmd = (new zigbeeCmd())
+                    ->setName(__('On', __FILE__))
+                    ->setEqLogic_id($this->id)
+                    ->setLogicalId('on')
+                    ->setConfiguration('request', 'on')
+                    ->setType('action')
+                    ->setSubType('other')
+            		->setOrder(1)
+                    ->setEventOnly(1)
+                    ->setIsVisible(1);
+          $jeezigbeeCmd->save();
+        }
+          $cmdlogicverif = zigbeeCmd::byEqLogicIdAndLogicalId($this->getId(), 'off');
+          if (!is_object($cmdlogicverif)) {
+          $jeezigbeeCmd = (new zigbeeCmd())
+                    ->setName(__('Off', __FILE__))
+                    ->setEqLogic_id($this->id)
+                    ->setLogicalId('off')
+                    ->setConfiguration('request', 'off')
+                    ->setType('action')
+                    ->setSubType('other')
+            		->setOrder(2)
+                    ->setEventOnly(1)
+                    ->setIsVisible(1);
+          $jeezigbeeCmd->save();
+        }
+          $cmdlogicverif = zigbeeCmd::byEqLogicIdAndLogicalId($this->getId(), 'toggle');
+          if (!is_object($cmdlogicverif)) {
+          $jeezigbeeCmd = (new zigbeeCmd())
+                    ->setName(__('Toggle', __FILE__))
+                    ->setEqLogic_id($this->id)
+                    ->setLogicalId('toggle')
+                    ->setConfiguration('request', 'toggle')
+                    ->setType('action')
+                    ->setSubType('other')
+            		->setOrder(3)
+                    ->setEventOnly(1)
+                    ->setIsVisible(0);
+          $jeezigbeeCmd->save();
+        }
+     }
+   } 
 
   public function preSave() {
     $this->setLogicalId($this->getConfiguration('ieeeAddr'));
@@ -175,9 +224,14 @@ class zigbeeCmd extends cmd {
   public function preSave() {
     if ($this->getType() == "action") {
       $eqLogic = $this->getEqLogic();
-      log::add('zigbee','info','http://192.168.1.56:3000/genOnOff?appareil=' . $eqLogic->getConfiguration('ieeeAddr') . '&epid=' . $eqLogic->getConfiguration('epId') . '&commande=' . $this->getConfiguration('request'));
-      $this->setConfiguration('value', 'http://192.168.1.56:3000/genOnOff?appareil=' . $eqLogic->getConfiguration('ieeeAddr') . '&epid=' . $eqLogic->getConfiguration('epId') . '&commande=' . $this->getConfiguration('request'));
+      $name = $this->getName();
+//      $eqLogic->getConfiguration('ieeeAddr')
+      $this->setLogicalId($name);
+
+//      log::add('zigbee','info','http://192.168.1.56:3000/genOnOff?appareil=' . $eqLogic->getConfiguration('ieeeAddr') . '&epid=' . $eqLogic->getConfiguration('epId') . '&commande=' . $this->getConfiguration('request'));
+//      $this->setConfiguration('value', 'http://192.168.1.56:3000/genOnOff?appareil=' . $eqLogic->getConfiguration('ieeeAddr') . '&epid=' . $eqLogic->getConfiguration('epId') . '&commande=' . $this->getConfiguration('request'));
       //$this->save();
     }
   }
+
 }
