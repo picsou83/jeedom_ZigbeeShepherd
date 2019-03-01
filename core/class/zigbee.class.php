@@ -23,7 +23,7 @@ require_once dirname(__FILE__) . '/../../../../core/php/core.inc.php';
 class zigbee extends eqLogic {
 
   public static function sendCommand( $ieeeAddr, $epId, $value ) {
-    $url = 'http://192.168.1.56:3000/genOnOff?appareil=' . $ieeeAddr . '&epid=' . $epId . '&commande=' . $value;
+    $url = 'http://' . $ip . '/genOnOff?appareil=' . $ieeeAddr . '&epid=' . $epId . '&commande=' . $value;
     $retour = file_get_contents($url);
   }
 
