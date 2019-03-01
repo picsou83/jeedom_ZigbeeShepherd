@@ -44,7 +44,10 @@ $cid = init('cid');
 $onOff= init('onOff');
 $epId= init('epId');
 
+
 $elogic = zigbee::byLogicalId($ieeeAddr, 'zigbee');
+
+
 
 if (!is_object($elogic)) {
 	if (config::byKey('include_mode','zigbee') != 1) {
@@ -55,7 +58,7 @@ if (!is_object($elogic)) {
 	$elogic->setLogicalId($ieeeAddr);
 	$elogic->setName($ieeeAddr);
 	$elogic->setIsEnable(true);
-	$elogic->setConfiguration('Typedev',$Typedev);
+  	$elogic->setConfiguration('Typedev',$Typedev);
 	$elogic->setConfiguration('manufId',$manufId);
     $elogic->setConfiguration('manufName',$manufName);
     $elogic->setConfiguration('powerSource',$powerSource);
@@ -67,6 +70,18 @@ if (!is_object($elogic)) {
     $elogic->setConfiguration('epId',$epId);
     $elogic->setConfiguration('ip',$nwkAddr);
     $elogic->setConfiguration('cid',$cid);
+  	if ($modelId === 'TRADFRI control outlet') {
+    $elogic->setConfiguration('icone','TRADFRIcontroloutlet');
+    } else if ($modelId === 'lumi.sensor_magnet.aq2') {
+    $elogic->setConfiguration('icone','XiaomiPorte1');
+    } else if ($modelId === 'lumi.sensor_motion.aq2') {
+    $elogic->setConfiguration('icone','XiaomiInfraRouge2');
+    } else if ($modelId === 'LCT015') {
+    $elogic->setConfiguration('icone','HueWhite');
+    } else if ($modelId === 'TRADFRI bulb E27 W opal 1000lm') {
+    $elogic->setConfiguration('icone','IkeaTRADFRIbulbE27WSopal980lm');
+    } 
+   
 	$elogic->save();
 	event::add('zigbee::includeDevice',
 	array(
@@ -74,16 +89,24 @@ if (!is_object($elogic)) {
 	)
 );
 } else {
+
+
 	if ($ieeeAddr != $elogic->getConfiguration('device')) {
 		$elogic->setConfiguration('device',$ieeeAddr);
 		$elogic->save();
 	}
 }
 
+
+
 $cmdlogic = zigbeeCmd::byEqLogicIdAndLogicalId($elogic->getId(),$cid);
+
+
  if ($cid === 'genBasic') {
 return false;
-} 
+}
+
+
 
 if (!is_object($cmdlogic)) {
 	$cmdlogic = new zigbeeCmd();
@@ -94,12 +117,25 @@ if (!is_object($cmdlogic)) {
 if ($cid === 'genOnOff')  {
     $cmdlogic->setType('info');
 	$cmdlogic->setSubType('binary');
+  	if ($modelId === 'TRADFRI control outlet') {
+ 	$cmdlogic->setTemplate('dashboard','Zigbee_Prise_Ikea_State');
+    } else if ($modelId === 'LCT015' || $modelId === 'TRADFRI bulb E27 W opal 1000lm') {
+    $elogic->setTemplate('dashboard','Zigbee_Lumi\u00e8re_State');
+    }
+  	$cmdlogic->setIsHistorized(1); 
 } else if ($cid === 'msOccupancySensing') {
     $cmdlogic->setType('info');
 	$cmdlogic->setSubType('binary');
+  	$cmdlogic->setIsHistorized(1); 
+    $cmdlogic->setDisplay('invertBinary', 1);
+  	$cmdlogic->setTemplate('dashboard','Oeil_fibaro');
 }  else if ($cid === 'msIlluminanceMeasurement') {
     $cmdlogic->setType('info');
 	$cmdlogic->setSubType('numeric');
+    $cmdlogic->setIsHistorized(1);
+    $cmdlogic->setConfiguration('minValue', 0);
+    $cmdlogic->setConfiguration('maxValue', 1500);
+    $cmdlogic->setTemplate('dashboard','luminositeIMG');
 } else if ($cid === 'genPowerCfg') {
     $cmdlogic->setType('info');
 	$cmdlogic->setSubType('numeric');
@@ -107,9 +143,13 @@ if ($cid === 'genOnOff')  {
 	$cmdlogic->setEqLogic_id($elogic->getId());
 	$cmdlogic->setConfiguration('cmd',$cid);
 }
+
+
 $cmdlogic->setConfiguration('value',$value);
 $cmdlogic->event($value);
 $cmdlogic->save();
+
+	
 
 return true;
 ?>
